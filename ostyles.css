@@ -1,0 +1,192 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Align items to the start (left) of the container */
+  background-color: #6E6E6E;
+  padding: 10px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+.logo {
+    width: 280px;
+    margin-right: 20px;
+    margin-left:20px;
+}
+nav {
+    flex-grow: 1;
+    text-align: left;
+}
+nav a {
+    margin: 0 15px;
+    text-decoration: none;
+    font-size: 20px;
+    color: #FFFFFF;
+    padding: 10px;
+    position: relative;
+}
+nav a.active::before, nav a:hover::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 5px;
+    width: 100%;
+    background-color: #BAFF39;
+}
+
+h1 {
+    padding: 20px;
+    background-color: #009688; /* New color for the header */
+    color: #fff;
+    margin: 0;
+    font-size: 45px; /* Increase the font size for the header */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Add a subtle text shadow */
+}
+
+#create-grid, #submit, #matrix, #results, label {
+    font-size: 20px; /* Increase the font size for these elements */
+    color: #333; /* Change text color to a dark gray */
+}
+
+#input-form {
+    text-align: center;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+label {
+    margin-right: 10px;
+    color: #008000; /* Change text color to green */
+   font-weight: bold; /* Make the text bold */
+}
+
+input[type="number"] {
+    width: 50px;
+    padding: 10px; /* Increase padding for input fields */
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+#create-grid, #submit {
+    padding: 12px 24px; /* Slightly increase padding for the buttons */
+    background-color: #007acc; /* Change button color to a blue shade */
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Add a smooth hover effect */
+}
+
+#create-grid:hover, #submit:hover {
+    background-color: #005f99; /* Darker color on hover */
+}
+
+table {
+    border: none;
+    width: 100%;
+    max-width: 600px;
+    margin: 20px 10px; /* adjusted margin for side-by-side display */
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+table th, table td {
+    border: 1px solid black;
+    padding: 10px;
+    text-align: center;
+}
+
+table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+    color: #000;
+}
+
+table tr:nth-child(odd) {
+    background-color: #f9f9f9;
+}
+
+table tr:nth-child(even) {
+    background-color: #fff;
+}
+
+table td:last-child {
+    text-align: left;
+}
+
+#results {
+    width: 120%;
+    max-width: 1200px;
+    max-height:5000000px;
+    background-color: #fff;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    margin: 20px auto;
+    padding: 20px;
+    text-align: left;
+}
+
+#steps div {
+    padding: 5px;
+
+}
+
+#steps strong {
+    font-size: 1.2em;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.table-container {
+    display: flex;
+    justify-content: space-between; /* Display tables side by side */
+    align-items: flex-start; /* Align tables to the top */
+    padding: 10px; /* Add some padding for spacing */
+}
+
+.matrix-table {
+    background-color: white; /* Add background color to tables */
+    width: 48%; /* Adjust the width of both tables equally */
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+sup {
+    font-size: 70%;
+}
+
+.result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+}
+
+.matrix-display {
+    margin-right: 20px;
+}
+
+.matrix-table {
+    border-collapse: collapse;
+    margin: 10px;
+  }
+  .matrix-table td {
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    border: 1px solid #ddd;
+  }
+  /* Additional style for the red border */
+  .border-top { border-top: 2px solid red; }
+  .border-right { border-right: 2px solid red; }
+  .border-bottom { border-bottom: 2px solid red; }
+  .border-left { border-left: 2px solid red; }

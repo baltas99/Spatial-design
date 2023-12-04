@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>ALBP Algorithms</title>
+    <link rel="stylesheet" href="astyles.css">
+</head>
+
+<body>
+    <div class="header">
+        <img src="img/logo.jpg" class="logo">
+        <nav>
+            <a href="index.html" id="nav-home">Home</a>
+            <a href="rankorderclustering.html" id="nav-production">Production Cell Grouping</a>
+            <a href="assemblyline.html" id="nav-assembly" class="active">Assembly Line Balancing</a>
+        </nav>
+    </div>
+
+    <div class="step-header">
+        <h1>ALBP 1&2 Algorithms</h1>
+    </div>
+    <div class="input-container">
+        <label for="algorithm">Select ALBP Algorithm</label>
+        <select id="algorithm" name="algorithm">
+            <option value="albp1">ALBP-1</option>
+            <option value="albp2">ALBP-2</option>
+        </select>
+
+        <label for="num-tasks">Enter Number of Tasks</label>
+        <input type="number" id="num-tasks" name="num-tasks" min="1" placeholder="Number of tasks">
+
+        <label for="available-time">Available Time</label>
+        <input type="number" id="available-time" name="available-time" min="1" placeholder="Available time">
+
+        <label for="algorithm-select">Algorithm</label>
+        <select id="algorithm-select" name="algorithm-select">
+            <option value="MFT">MFT | LTT</option>
+            <option value="SPT">SPT | LTT</option>
+            <option value="LPT">LPT | LTT</option>
+            <option value="FCFS">FCFS | LTT</option>
+        </select>
+    </div>
+
+    <div class="button-container">
+        <button id="generate-btn" type="button">Generate Task Inputs</button>
+    </div>
+
+    <div class="content-container">
+      <div class="table-container">
+          <table id="tasks-table" style="display:none;">
+              <!-- The table headers and rows will be dynamically inserted here -->
+          </table>
+      </div>
+
+      <div class="submit-container"> <!-- New container for the submit button -->
+        <button id="submit-btn" type="button" style="display:none;">Submit Tasks</button>
+      </div>
+
+        <div id="results">
+            <!-- Results will be displayed here after processing -->
+        </div>
+    </div>
+
+
+    <script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+         const submitBtn = document.getElementById('submit-btn');
+         const algorithmTypeSelect = document.getElementById('algorithm');
+        const algorithmSelect = document.getElementById('algorithm-select');
+
+         document.getElementById('generate-btn').addEventListener('click', function() {
+             generateTaskInputs();
+             submitBtn.style.display = 'block'; // Show the submit button after generating tasks
+         });
+
+         submitBtn.addEventListener('click', function() {
+             if(submitBtn.textContent === "Submit Tasks") {
+                 submitTasks();
+                 submitBtn.textContent = "Reload"; // Change button text to "Reload"
+                 makeFieldsUneditable(); // Function to make fields uneditable
+             } else {
+                 window.location.reload(); // Reload the page
+             }
+         });
+
+         algorithmTypeSelect.addEventListener('change', function() {
+             const albpType = algorithmTypeSelect.value;
+             const albp1Options = [
+                 { value: "MFT", text: "MFT | LTT" },
+                 { value: "SPT", text: "SPT | LTT" },
+                 { value: "LPT", text: "LPT | LTT" },
+                 { value: "FCFS", text: "FCFS | LTT" }
+             ];
+             const albp2Options = [
+                 { value: "SPT", text: "SPT" },
+                 { value: "LPT", text: "LPT" },
+                 { value: "EDD", text: "EDD" },
+                 { value: "MFT", text: "MFT" },
+                 { value: "LFT", text: "LFT" },
+                 { value: "RPW", text: "RPW" },
+                 { value: "FCFS", text: "FCFS" }
+             ];
+
+             // Remove existing options
+             while (algorithmSelect.options.length > 0) {
+                 algorithmSelect.remove(0);
+             }
+
+             // Insert new options based on ALBP type
+             const newOptions = albpType === 'albp1' ? albp1Options : albp2Options;
+             newOptions.forEach(function(option) {
+                 const optionElement = document.createElement('option');
+                 optionElement.value = option.value;
+                 optionElement.text = option.text;
+                 algorithmSelect.add(optionElement);
+             });
+         });
+
+         // Trigger the change event to set the initial state
+         algorithmTypeSelect.dispatchEvent(new Event('change'));
+
+
+         // Function to make input fields uneditable
+         function makeFieldsUneditable() {
+             document.querySelectorAll('.input-container input, .input-container select').forEach(function(input) {
+                 input.disabled = true; // Disable the input field
+             });
+         }
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+function generateTaskInputs() {
+  const numberOfTasks = parseInt(document.getElementById('num-tasks').value, 10);
+  const table = document.getElementById('tasks-table');
+  const tableBody = table.querySelector('tbody');
+
+    // Clear previous table headers and rows
+    table.innerHTML = '';
+
+    // Create headers
+    const headerRow = table.insertRow();
+    const taskHeaderCell = headerRow.insertCell();
+    taskHeaderCell.outerHTML = "<th>Εργασία</th>";
+    for (let i = 0; i < numberOfTasks; i++) {
+      const taskLetter = String.fromCharCode('A'.charCodeAt(0) + i);
+      const headerCell = headerRow.insertCell();
+      headerCell.outerHTML = `<th>${taskLetter}</th>`;
+  }
+      headerRow.insertCell().outerHTML = "<th>Συνολικός χρόνος</th>";
+
+      // Create time input row
+    const timeRow = table.insertRow(-1);
+    const timeLabelCell = timeRow.insertCell();
+    timeLabelCell.textContent = "Χρόνος (Λεπτά)";
+    for (let i = 0; i < numberOfTasks; i++) {
+      const taskLetter = String.fromCharCode('A'.charCodeAt(0) + i);
+      const timeInputCell = timeRow.insertCell();
+      timeInputCell.innerHTML = `<input type="number" id="task-${taskLetter}-time" name="task-${taskLetter}-time" min="1" required>`;
+  }
+    const totalTimeCell = timeRow.insertCell();
+    totalTimeCell.setAttribute('id', 'total-time');
+    totalTimeCell.textContent = "0"; // Set initial total time to 0
+
+    // Create predecessors input row
+    const preRow = table.insertRow(-1);
+    const preLabelCell = preRow.insertCell();
+    preLabelCell.textContent = "Προκάτοχοι";
+    for (let i = 0; i < numberOfTasks; i++) {
+      const taskLetter = String.fromCharCode('A'.charCodeAt(0) + i);
+      const preInputCell = preRow.insertCell();
+
+      // Create a container for both the dropdown and the text input
+      const container = document.createElement('div');
+
+      // Create the text input
+      const textInput = document.createElement('input');
+      textInput.type = 'text';
+      textInput.id = `task-${taskLetter}-predecessors`;
+      textInput.name = `task-${taskLetter}-predecessors`;
+
+      // Create the dropdown and include a disabled placeholder option
+      const selectInput = document.createElement('select');
+      selectInput.innerHTML = `<option value="" disabled selected>Select</option>` +
+                              Array.from({ length: numberOfTasks }, (_, j) => {
+                                  const optionLetter = String.fromCharCode('A'.charCodeAt(0) + j);
+                                  return (optionLetter !== taskLetter) ? `<option value="${optionLetter}">${optionLetter}</option>` : '';
+                              }).join('');
+
+      // Add event listener to the dropdown
+      selectInput.addEventListener('change', function() {
+          if (this.value) {
+              textInput.value += textInput.value ? `, ${this.value}` : this.value;
+              this.remove(this.selectedIndex);
+              this.selectedIndex = 0;
+          }
+      });
+
+      container.appendChild(textInput);
+      container.appendChild(selectInput);
+
+      preInputCell.appendChild(container);
+  }
+    preRow.insertCell();
+
+    //   Show the table and submit button
+  document.getElementById('submit-btn').style.display = 'block';
+  table.style.display = 'table';
+
+    // Add event listeners for total time calculation
+  for (let i = 0; i < numberOfTasks; i++) {
+      const taskLetter = String.fromCharCode('A'.charCodeAt(0) + i);
+      document.getElementById(`task-${taskLetter}-time`).addEventListener('input', calculateTotalTime);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function submitTasks() {
+  const data = collectTaskData();
+  displayMinimumStations(data.totalTime, data.availableTime);
+
+  // Implement ALBP-1 algorithm or ALBP-2 DEPENDING ON SELECTION
+  const selectedAlgorithm = document.getElementById('algorithm').value;
+  if (selectedAlgorithm === 'albp1') {
+    const stations = albp1Algorithm(data.tasks, data.availableTime);
+    displayResults(stations);
+  } else if (selectedAlgorithm === 'albp2') {
+    // Prompt the user for the number of stations for ALBP-2
+    let m = prompt("Please enter the number of desired stations (m):", "Enter number here");
+    m = parseInt(m, 10); // Convert the input to an integer
+
+    // Check if the user input is a number and greater than 0
+    if (!isNaN(m) && m > 0) {
+      // Call the albp2Algorithm with the user's input for number of stations
+      const result = albp2Algorithm(data.tasks, m);
+      displayAlbp2Results(result);
+    } else {
+      // If the input is not valid, alert the user
+      alert("You must enter a valid number for stations.");
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function displayMinimumStations(totalTime, cycleTime) {
+    const resultsContainer = document.getElementById('results');
+    resultsContainer.style.display = 'block';
+    const minStations = totalTime / cycleTime;
+    const roundedStations = Math.ceil(minStations); // Rounds up to the nearest whole number
+
+    // Clear previous results
+    resultsContainer.innerHTML = '';
+
+    // Create the formatted output
+    const calculationElement = document.createElement('p');
+    calculationElement.innerHTML = `Ελάχιστος αριθμός σταθμών = Σ<sub>i=1</sub><sup>n</sup> χρόνος εργασίας i / Cycle time = ${totalTime} / ${cycleTime} = ${minStations.toFixed(2)} ≈ ${roundedStations} σταθμοί`;
+
+    // Append the new result
+    resultsContainer.appendChild(calculationElement);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function displayResults(stations) {
+    const resultsContainer = document.getElementById('results');
+    const taskAssignmentStrategy = document.getElementById('algorithm-select').value;
+
+    // Create the table structure
+    const table = document.createElement('table');
+    table.setAttribute('id', 'resultsTable');
+    const thead = document.createElement('thead');
+    const tbody = document.createElement('tbody');
+    table.appendChild(thead);
+    table.appendChild(tbody);
+
+    // Define the headers
+    const headers = ['Σταθμός', 'Υπολειπόμενες Εργασίες', `Εργασία με ${taskAssignmentStrategy}`, 'Διαθέσιμος Χρόνος', 'Χρόνος Εκτέλεσης', 'Επιλογή', 'Υπολειπόμενος Χρόνος'];
+      const tr = document.createElement('tr');
+      headers.forEach(headerText => {
+          const th = document.createElement('th');
+          th.textContent = headerText;
+          tr.appendChild(th);
+      });
+      thead.appendChild(tr);
+
+    // Populate the body of the table
+    stations.stationDetails.forEach((station, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+        <td>${station.stationNumber}</td>
+          <td>${station.remainingTasks}</td>
+          <td>${station.selectedTask}</td> <!-- This column shows the selected task -->
+          <td>${station.availableTime}</td>
+          <td>${station.executionTime}</td>
+          <td>${station.selectedTask}</td> <!-- Repeat the selected task as per your structure -->
+          <td>${station.remainingTime}</td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    // Append the new result
+    resultsContainer.appendChild(table);
+
+    // Also display the efficiency
+    displayEfficiency(stations.efficiency);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function displayEfficiency(efficiency) {
+    const resultsContainer = document.getElementById('results');
+
+    // Create the efficiency display element
+    const efficiencyElement = document.createElement('div');
+    efficiencyElement.innerHTML = `
+        <p>Αποδοτικότητα = Σ<sub>i=1</sub><sup>n</sup> χρόνος εργασίας i / (αριθμός σταθμών x cycle time) x 100 = ${efficiency} %</p>
+
+    `;
+
+    // Append the efficiency display to the results container
+    resultsContainer.appendChild(efficiencyElement);
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function collectTaskData() {
+    const numberOfTasks = parseInt(document.getElementById('num-tasks').value, 10);
+    const availableTime = parseInt(document.getElementById('available-time').value, 10);
+    let tasks = [];
+    let totalTime = 0;
+
+    for (let i = 0; i < numberOfTasks; i++) {
+        const taskLetter = String.fromCharCode('A'.charCodeAt(0) + i);
+        const taskTimeInput = document.getElementById(`task-${taskLetter}-time`);
+        const taskPredecessorsInput = document.getElementById(`task-${taskLetter}-predecessors`);
+
+        // Parse the task time, or default to 0 if not a number
+        const taskTime = parseInt(taskTimeInput.value, 10) || 0;
+        totalTime += taskTime;
+
+        // Split the predecessors by comma and trim whitespace
+        const taskPredecessors = taskPredecessorsInput.value
+            .split(',')
+            .map(predecessor => predecessor.trim())
+            .filter(predecessor => predecessor); // filter out any empty strings
+
+        tasks.push({
+            letter: taskLetter,
+            time: taskTime,
+            predecessors: taskPredecessors
+        });
+    }
+
+    return {
+        tasks: tasks,
+        availableTime: availableTime,
+        totalTime: totalTime
+    };
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      function calculateTotalTime() {
+    const inputs = document.querySelectorAll('#tasks-table input[type="number"]');
+    let totalTime = 0;
+    inputs.forEach(input => {
+        const value = parseInt(input.value, 10);
+        if (!isNaN(value)) {
+            totalTime += value;
+        }
+    });
+    document.getElementById('total-time').textContent = totalTime;
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function albp1Algorithm(tasks, cycleTime) {
+    // Preprocessing step to calculate MFT for each task
+    tasks.forEach(task => {
+        task.followingTasks = tasks.reduce((count, t) => {
+            return count + (t.predecessors.includes(task.letter) ? 1 : 0);
+        }, 0);
+    });
+
+
+  const taskAssignmentStrategy = document.getElementById('algorithm-select').value;
+
+    let stations = [];
+    let remainingTasks = [...tasks];
+    let stationNumber = 1;
+
+    while (remainingTasks.length > 0) {
+        let currentTime = 0;
+        let currentStationTasks = [];
+        let availableTasks = remainingTasks.filter(task =>
+            task.predecessors.every(pre =>
+                stations.flatMap(station => station.assignedTasks.map(t => t.letter)).includes(pre))
+        );
+
+        // Sort available tasks based on MFT (tasks with more following tasks first)
+        switch(taskAssignmentStrategy) {
+              case 'SPT':
+                  availableTasks.sort((a, b) => a.time - b.time);
+                  break;
+              case 'LPT':
+                  availableTasks.sort((a, b) => b.time - a.time);
+                  break;
+              case 'FCFS':
+                  // For FCFS, the order of tasks in 'remainingTasks' is preserved
+                  break;
+              default:
+                  // Default to MFT if no strategy is selected
+                  availableTasks.sort((a, b) => b.followingTasks - a.followingTasks || b.time - a.time);
+          }
+
+        // Iteratively try to add tasks to the current station until the cycle time is reached
+        availableTasks.forEach(task => {
+            if (currentTime + task.time <= cycleTime) {
+                currentTime += task.time;
+                currentStationTasks.push(task);
+            }
+        });
+
+        // Update remaining tasks
+        remainingTasks = remainingTasks.filter(task => !currentStationTasks.includes(task));
+
+        // Calculate MFT and LTT for the tasks in the current station
+        let mftTask = currentStationTasks[0] || {};
+        let lttTask = currentStationTasks.sort((a, b) => b.time - a.time)[0] || {};
+
+        // Create the station object
+        let station = {
+            stationNumber: stationNumber,
+            assignedTasks: currentStationTasks,
+            remainingTime: cycleTime - currentTime,
+            taskWithMaxMFT: mftTask.letter || '',
+            taskWithMaxLTT: lttTask.letter || '',
+        };
+
+        // Add to stations array
+        stations.push(station);
+
+        // Move to next station only if there are still tasks remaining
+        if (remainingTasks.length > 0) {
+            stationNumber++;
+        }
+    }
+
+    // Calculate the efficiency
+    const totalWorkTime = tasks.reduce((sum, task) => sum + task.time, 0);
+    const efficiency = (totalWorkTime / (stations.length * cycleTime)) * 100;
+
+    // Map the stations to the expected format for displayResults
+    const stationDetails = stations.map(station => ({
+        stationNumber: station.stationNumber,
+        remainingTasks: station.assignedTasks.map(t => t.letter).join(', '),
+        taskWithMaxMFT: station.taskWithMaxMFT,
+        taskWithMaxLTT: station.taskWithMaxLTT,
+        availableTime: cycleTime,
+        executionTime: station.assignedTasks.reduce((sum, task) => sum + task.time, 0),
+        selectedTask: station.assignedTasks.map(t => t.letter).join(', '),
+        remainingTime: station.remainingTime
+    }));
+
+    // Return both the details of the stations and the efficiency
+    return {
+        stationDetails: stationDetails,
+        efficiency: efficiency.toFixed(2) // keep two decimal places
+    };
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function albp2Algorithm(tasks, m) {
+  const pSum = tasks.reduce((sum, task) => sum + task.time, 0);
+  const pMax = Math.max(...tasks.map(task => task.time));
+  let cLowerBound = Math.max(pMax, pSum / m);
+  let cUpperBound = Math.max(pMax, pSum / (m / 2));
+  let taskAssignmentRule = document.getElementById('algorithm-select').value;
+
+  function sortTasks(tasks, rule) {
+    // Create a copy of the tasks array to sort so the original array is not mutated
+    let tasksCopy = [...tasks];
+    if (rule === 'SPT') {
+      return tasksCopy.sort((a, b) => a.time - b.time);
+    } else if (rule === 'LPT') {
+      return tasksCopy.sort((a, b) => b.time - a.time);
+    } else {
+      return tasksCopy; // No sorting for FCFS
+    }
+  }
+
+  function allPredecessorsCompleted(task, assignedTasks) {
+    return task.predecessors.every(pre => assignedTasks.has(pre));
+  }
+
+  function isFeasible(c, tasks, taskAssignmentRule, allPredecessorsCompleted) {
+    let stations = [];
+    let assignedTasks = new Set();
+    let sortedTasks = sortTasks(tasks, taskAssignmentRule);
+
+    sortedTasks.forEach(task => {
+      if (!assignedTasks.has(task.letter) && allPredecessorsCompleted(task, assignedTasks)) {
+        let assigned = false;
+        for (const station of stations) {
+          if (station.totalTime + task.time <= c) {
+            station.tasks.push(task);
+            station.totalTime += task.time;
+            assigned = true;
+            break;
+          }
+        }
+        if (!assigned) {
+          stations.push({ tasks: [task], totalTime: task.time, candidateTasks: [] });
+        }
+        assignedTasks.add(task.letter);
+      }
+    });
+
+    return stations.length <= m;
+  }
+
+  // Binary search for the optimal cycle time
+  while (cLowerBound < cUpperBound) {
+    let cMid = Math.floor((cLowerBound + cUpperBound) / 2);
+    if (isFeasible(cMid, tasks, taskAssignmentRule, allPredecessorsCompleted)) {
+      cUpperBound = cMid;
+    } else {
+      cLowerBound = cMid + 1;
+    }
+  }
+
+  let optimalCycleTime = cLowerBound;
+  let finalStations = [];
+  let finalAssignedTasks = new Set();
+
+  function getCandidateTasks(tasks, assignedTasks) {
+    return tasks.filter(task => {
+      return !assignedTasks.has(task.letter) && allPredecessorsCompleted(task, assignedTasks);
+    });
+  }
+
+  // Assign tasks to stations with the optimal cycle time
+  sortTasks(tasks, taskAssignmentRule).forEach(task => {
+    let currentCandidates = getCandidateTasks(tasks, finalAssignedTasks);
+    let assigned = false;
+    for (const station of finalStations) {
+      if (station.totalTime + task.time <= optimalCycleTime && allPredecessorsCompleted(task, finalAssignedTasks)) {
+        station.tasks.push(task);
+        station.totalTime += task.time;
+        assigned = true;
+        break;
+      }
+    }
+    if (!assigned && allPredecessorsCompleted(task, finalAssignedTasks)) {
+      finalStations.push({
+        tasks: [task],
+        totalTime: task.time,
+        candidateTasks: currentCandidates.map(t => t.letter)
+      });
+    }
+    finalAssignedTasks.add(task.letter);
+  });
+
+  // Calculate efficiency
+  const totalWorkTime = tasks.reduce((sum, task) => sum + task.time, 0);
+  const efficiency = (totalWorkTime / (finalStations.length * optimalCycleTime)) * 100;
+
+  // Add the candidate tasks to the station objects
+  finalStations.forEach(station => {
+    if (!station.candidateTasks) {
+      station.candidateTasks = [];
+    }
+  });
+
+  console.log("Final stations with candidate tasks:", finalStations);
+  return {
+    stations: finalStations,
+    efficiency: efficiency.toFixed(2),
+    cycleTime: optimalCycleTime
+  };
+}
+// Helper function to check if all predecessors of a task are completed
+function allPredecessorsCompleted(task, assignedTasks) {
+  return task.predecessors.every(pre => assignedTasks.has(pre));
+}
+
+
+function getCandidateTasks(tasks, assignedTasks) {
+  return tasks.filter(task => {
+    // A task is a candidate if it hasn't been assigned yet and all its predecessors have been assigned
+    return !assignedTasks.has(task.letter) && allPredecessorsCompleted(task, assignedTasks);
+  });
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+function updateRemainingTasks(allTasks, assignedTasks) {
+  return allTasks.filter(task => {
+    return task.predecessors.every(predecessor =>
+      assignedTasks.find(t => t.name === predecessor)
+    );
+  });
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function displayAlbp2Results(result) {
+  let html = '<table>';
+  html += '<tr><th>Σταθμός k</th><th>Υποψήφιες Εργασίες</th><th>Επιλογή Εργασίας</th><th>ΣΤk</th></tr>';
+
+  if (result && result.stations) {
+    result.stations.forEach((station, index) => {
+      // Tasks selected for this station
+      let selectedTaskHtml = station.tasks.map(task => `${task.letter}(${task.time})`).join(', ');
+
+      // Cumulative time for this station
+      let cumulativeTime = station.totalTime;
+
+      // Candidate tasks for this station
+      let candidateTasksHtml = station.candidateTasks.join(', ');
+
+      html += `<tr>
+                 <td>${index + 1}</td>
+                 <td>${candidateTasksHtml}</td>
+                 <td>${selectedTaskHtml}</td>
+                 <td>${cumulativeTime}</td>
+               </tr>`;
+    });
+  }
+
+  html += `<tr><td colspan="3">Efficiency (E)</td><td>${result.efficiency}%</td></tr>`;
+  html += '</table>';
+  document.getElementById('results').innerHTML = html;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    });
+    </script>
+
+</body>
+</html>

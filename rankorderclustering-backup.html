@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rank Order Clustering</title>
+    <link rel="stylesheet" href="ostyles.css"> <!-- Link to the external CSS file -->
+    <style>
+        table {
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        td, th {
+            border: 1px solid black;
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        #steps div {
+            display: inline-block;
+            margin-right: 40px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Rank Order Clustering</h1>
+    <div id="input-form">
+        <label for="rows">Number of Machines:</label>
+        <input type="number" id="rows" min="1" value="5"> <!-- Input field for rows -->
+        <label for="columns">Number of Parts:</label>
+        <input type="number" id="columns" min="1" value="5"> <!-- Input field for columns -->
+        <button id="create-grid">Create Grid</button> <!-- Button to create the grid -->
+    </div>
+    <table id="matrix">
+        <!-- The grid will be generated dynamically here -->
+    </table>
+    <div id="submit-button-container">
+        <button id="submit">Submit</button>
+    </div>
+
+    <div id="results">
+        <div id="steps">
+            <!-- The steps will be printed here dynamically -->
+        </div>
+    </div>
+    <!-- Add error message container -->
+  <div id="error-message"></div>
+
+    <script>
+        // Function to create the grid with specified rows and columns
+        function createGrid() {
+            const rowsInput = document.getElementById("rows");
+            const columnsInput = document.getElementById("columns");
+            const numRows = parseInt(rowsInput.value);
+            const numCols = parseInt(columnsInput.value);
+
+            // Clear the existing table
+            const matrix = document.getElementById("matrix");
+            matrix.innerHTML = "";
+
+            // Create the matrix with the specified number of rows and columns
+            for (let i = 0; i < numRows; i++) {
+                const row = document.createElement("tr");
+                for (let j = 0; j < numCols; j++) {
+                    const cell = document.createElement("td");
+                    cell.addEventListener("click", toggleSelection);
+                    row.appendChild(cell);
+                }
+                matrix.appendChild(row);
+            }
+
+            // Add captions for rows and columns
+            const row = document.createElement("tr");
+            const emptyCell = document.createElement("td");
+            row.appendChild(emptyCell);
+            for (let j = 0; j < numCols; j++) {
+                const colCaption = document.createElement("td");
+                colCaption.textContent = "Part " + (j + 1);
+                row.appendChild(colCaption);
+            }
+            matrix.insertBefore(row, matrix.firstChild);
+
+            for (let i = 0; i < numRows; i++) {
+                const row = matrix.rows[i + 1];
+                const rowCaption = document.createElement("td");
+                rowCaption.textContent = "Machine " + (i + 1);
+                row.insertBefore(rowCaption, row.firstChild);
+            }
+        }
+
+        // Function to toggle cell selection
+        function toggleSelection(event) {
+            const cell = event.target;
+            if (cell.textContent === "") {
+                cell.textContent = "X"; // Mark cell with "X"
+            } else {
+                cell.textContent = ""; // Clear "X" if already marked
+            }
+        }
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function rankOrderClustering() {
+    const matrixElement = document.getElementById("matrix");
+    const numRows = matrixElement.rows.length - 1;
+    const numCols = matrixElement.rows[0].cells.length - 1;
+
+    let matrix = [];
+    let rowWeights = [];
+    let rowFormulas = [];
+
+    // Capture the matrix data
+    for (let i = 1; i <= numRows; i++) {
+        let row = [];
+        for (let j = 1; j <= numCols; j++) {
+            row.push(matrixElement.rows[i].cells[j].textContent === "X" ? 1 : 0);
+        }
+        matrix.push(row);
+    }
+
+    // Calculate weights for rows (Machines)
+    for (let i = 0; i < numRows; i++) {
+        let rowWeight = 0;
+        let rowFormula = "";
+        for (let j = 0; j < numCols; j++) {
+            if (matrix[i][j] === 1) {
+                let power = numCols - j - 1;
+                rowWeight += Math.pow(2, power);
+                rowFormula += (rowFormula ? " + " : "") + "2<sup>" + power + "</sup>";
+            }
+        }
+        rowWeights.push(rowWeight);
+        rowFormulas.push(rowFormula);
+    }
+
+    ///////////////////// here we loop the steps until no changes after step3
+  //  displayStep1Results(matrix, rowWeights, rowFormulas);
+  //  const step2Results = displayStep2Results(matrix, rowWeights);
+//    const step3Results = displayStep3Results(step2Results.orderedMatrix, step2Results.orderedIndices);
+//    const step4Results = displayStep4(step3Results.orderedMatrix, step3Results.columnWeights, step3Results.orderedIndices);
+
+let iterationCount = 0;
+const maxIterations = 5;
+
+let step3Results;
+
+do {
+    // Step 1
+    displayStep1Results(matrix, rowWeights, rowFormulas);
+
+    // Step 2
+    const step2Results = displayStep2Results(matrix, rowWeights);
+
+    // Step 3
+    step3Results = displayStep3Results(step2Results.orderedMatrix, step2Results.orderedIndices);
+
+    // If columns are sorted after Step 3, break
+    if (step3Results.isSorted) {
+        break;
+    }
+
+    // Step 4
+    const step4Results = displayStep4(step3Results.orderedMatrix, step3Results.columnWeights, step3Results.orderedIndices);
+
+    // Update matrix, rowWeights, and rowFormulas for the next iteration
+    matrix = step4Results.matrix;
+    rowWeights = step4Results.rowWeights;
+    rowFormulas = step4Results.rowFormulas;
+
+    iterationCount++;
+} while (iterationCount < maxIterations);
+
+const stepsDiv = document.getElementById("steps");
+stepsDiv.innerHTML += "<p><strong>Final Step:</strong> As no ordering occurs at step3, the Rank order Clustering Algorithm has come to the end!</p>";
+
+
+createMatrixTable(step3Results.orderedMatrix);
+
+
+
+
+
+
+}
+
+///////////////////////////////////////////// DISPLAY STEP 1 ////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function displayStep1Results(matrix, rowWeights, rowFormulas) {
+    const stepsDiv = document.getElementById("steps");
+    stepsDiv.innerHTML += "<p><strong>Step 1:</strong> Calculating binary numbers of each row...</p>";
+
+    let matrixResults = "<div class='matrix-display'><strong>Matrix:</strong><table><tr><th></th>";
+    for (let j = 0; j < matrix[0].length; j++) {
+        matrixResults += "<th>P" + (j + 1) + "</th>";
+    }
+    matrixResults += "</tr>";
+    for (let i = 0; i < matrix.length; i++) {
+        matrixResults += "<tr><td>M" + (i + 1) + "</td>";
+        for (let j = 0; j < matrix[i].length; j++) {
+            matrixResults += "<td>" + matrix[i][j] + "</td>";
+        }
+        matrixResults += "</tr>";
+    }
+    matrixResults += "</table></div>";
+
+    let rowResults = "<div class='weight-results'><strong>Base 10:</strong><table>";
+    for (let i = 0; i < rowWeights.length; i++) {
+        rowResults += "<tr><td>M" + (i + 1) + "</td><td>" + (rowFormulas[i] || "0") + " = </td><td>" + rowWeights[i] + "</td></tr>";
+    }
+    rowResults += "</table></div>";
+
+    stepsDiv.innerHTML += "<div class='result-row'>" + matrixResults + rowResults + "</div>";
+
+}
+
+//////////////////////////////////////////  DISPLAY STEP 2 /////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function displayStep2Results(matrix, rowWeights) {
+    let orderedIndices = rowWeights.map((weight, index) => index)
+        .sort((a, b) => rowWeights[b] - rowWeights[a]);
+    const orderedMatrix = orderedIndices.map(index => matrix[index]);
+
+    const stepsDiv = document.getElementById("steps");
+    stepsDiv.innerHTML += "<p><strong>Step 2:</strong> Ordering of Machines based on Decimal Value</p>";
+
+    let matrixResults = "<div class='matrix-display'><strong>Matrix:</strong><table><tr><th></th>";
+    for (let j = 0; j < orderedMatrix[0].length; j++) {
+        matrixResults += "<th>P" + (j + 1) + "</th>";
+    }
+    matrixResults += "</tr>";
+    for (let i = 0; i < orderedMatrix.length; i++) {
+        matrixResults += "<tr><td>M" + (orderedIndices[i] + 1) + "</td>";
+        for (let j = 0; j < orderedMatrix[i].length; j++) {
+            matrixResults += "<td>" + orderedMatrix[i][j] + "</td>";
+        }
+        matrixResults += "</tr>";
+    }
+    matrixResults += "</table></div>";
+
+    let rowResults = "<div class='weight-results'><strong>Ordering:</strong><table>";
+    orderedIndices.forEach((index, position) => {
+        rowResults += "<tr><td>M" + (index + 1) + "</td><td>" + rowWeights[index] + "</td><td>" + (position + 1) + "</td></tr>";
+    });
+    rowResults += "</table></div>";
+
+    stepsDiv.innerHTML += "<div class='result-row'>" + matrixResults + rowResults + "</div>";
+
+    return {
+    orderedMatrix: orderedMatrix,
+    orderedIndices: orderedIndices
+};
+
+}
+
+//////////////////////////  DISPLAY STEP 3 //////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+  function displayStep3Results(matrix, orderedIndices) {
+      const stepsDiv = document.getElementById("steps");
+      stepsDiv.innerHTML += "<p><strong>Step 3:</strong> Calculating binary numbers of each column...</p>";
+
+      let matrixResults = "<div class='matrix-display'><strong>Matrix:</strong><table><tr><th></th>";
+      for (let j = 0; j < matrix[0].length; j++) {
+          matrixResults += "<th>P" + (j + 1) + "</th>";
+      }
+      matrixResults += "</tr>";
+      for (let i = 0; i < matrix.length; i++) {
+      matrixResults += "<tr><td>M" + (orderedIndices[i] + 1) + "</td>";
+          for (let j = 0; j < matrix[i].length; j++) {
+              matrixResults += "<td>" + matrix[i][j] + "</td>";
+          }
+          matrixResults += "</tr>";
+      }
+      matrixResults += "</table></div>";
+
+      let columnWeights = [];
+      let columnResults = "<div class='weight-results'><strong>Base 10:</strong><table>";
+      for (let j = 0; j < matrix[0].length; j++) {
+          let columnBinary = matrix.map(row => row[j]).join('');
+          let binaryCalculation = getColumnBinaryCalculation(columnBinary);
+          let weight = parseInt(columnBinary, 2);
+          columnWeights.push(weight);
+          columnResults += "<tr><td>P" + (j + 1) + "</td><td>" + binaryCalculation + " = </td><td>" + weight + "</td></tr>";
+      }
+      columnResults += "</table></div>";
+
+      stepsDiv.innerHTML += "<div class='result-row'>" + matrixResults + columnResults + "</div>";
+
+      const isSorted = isColumnsSorted(columnWeights);
+      console.log(isSorted);
+      return {
+          orderedMatrix: matrix,
+          columnWeights: columnWeights,
+           orderedIndices: orderedIndices,
+          isSorted: isSorted
+      };
+  }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function displayStep4(matrix, columnWeights, orderedRowIndices) {
+    // Ordering columns based on their weights
+    const orderedColumnIndices = columnWeights.map((weight, index) => index)
+        .sort((a, b) => columnWeights[b] - columnWeights[a]);
+
+    const orderedMatrix = matrix.map(row => orderedColumnIndices.map(index => row[index]));
+
+    const stepsDiv = document.getElementById("steps");
+    stepsDiv.innerHTML += "<p><strong>Step 4:</strong> Ordering of Parts based on Decimal Value</p>";
+
+    let matrixResults = "<div class='matrix-display'><strong>Matrix:</strong><table><tr><th></th>";
+    for (let j = 0; j < orderedMatrix[0].length; j++) {
+        matrixResults += "<th>P" + (orderedColumnIndices[j] + 1) + "</th>";
+    }
+    matrixResults += "</tr>";
+    for (let i = 0; i < orderedMatrix.length; i++) {
+        matrixResults += "<tr><td>M" + (orderedRowIndices[i] + 1) + "</td>";
+        for (let j = 0; j < orderedMatrix[i].length; j++) {
+            matrixResults += "<td>" + orderedMatrix[i][j] + "</td>";
+        }
+        matrixResults += "</tr>";
+    }
+    matrixResults += "</table></div>";
+
+    let columnResults = "<div class='weight-results'><strong>Ordering:</strong><table>";
+    orderedColumnIndices.forEach((index, position) => {
+        columnResults += "<tr><td>P" + (index + 1) + "</td><td>" + columnWeights[index] + "</td><td>" + (position + 1) + "</td></tr>";
+    });
+    columnResults += "</table></div>";
+
+    stepsDiv.innerHTML += "<div class='result-row'>" + matrixResults + columnResults + "</div>";
+
+
+    // Calculate weights and formulas for rows (Machines)
+  let numRows = orderedMatrix.length;
+  let numCols = orderedMatrix[0].length;
+  let rowWeights = [];
+  let rowFormulas = [];
+
+  for (let i = 0; i < numRows; i++) {
+      let rowWeight = 0;
+      let rowFormula = "";
+      for (let j = 0; j < numCols; j++) {
+          if (orderedMatrix[i][j] === 1) {
+              let power = numCols - j - 1;
+              rowWeight += Math.pow(2, power);
+              rowFormula += (rowFormula ? " + " : "") + "2<sup>" + power + "</sup>";
+          }
+      }
+      rowWeights.push(rowWeight);
+      rowFormulas.push(rowFormula);
+  }
+  console.log("Row Weights:", rowWeights);
+    return {
+        matrix: orderedMatrix,
+        rowWeights: rowWeights,
+        rowFormulas: rowFormulas
+    };
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function getColumnBinaryCalculation(binary) {
+    let calculation = "";
+    for (let i = 0; i < binary.length; i++) {
+        if (binary[i] === "1") {
+            // Adjusting the power representation here
+            calculation += "2<sup>" + (binary.length - i - 1) + "</sup> + ";
+        }
+    }
+    return calculation.slice(0, -3);  // Remove the trailing " + "
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function isColumnsSorted(columnWeights) {
+    for(let i = 1; i < columnWeights.length; i++) {
+        if(columnWeights[i] > columnWeights[i - 1]) {
+            return false;
+        }
+    }
+    return true;
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Function to apply borders for groups
+function applyGroupBorders(matrix) {
+  // Your logic here to apply borders, for example:
+  // This is a placeholder, you'll need to implement the logic based on your clustering results
+  matrix.forEach((row, i) => {
+    row.forEach((cell, j) => {
+      if (cell === 1) {
+        // Example logic to add a border if the cell is part of a group
+        let cellElement = document.getElementById(`cell-${i}-${j}`);
+        cellElement.style.border = "2px solid red";
+      }
+    });
+  });
+
+  // You would need to have more complex logic to check the grouping and apply borders accordingly
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function createMatrixTable(matrix) {
+  const stepsDiv = document.getElementById("steps");
+
+  // Clear previous content
+  stepsDiv.innerHTML += "<p> Now we are going to group the machines in cells </p>";
+  let table = document.createElement('table');
+  table.className = 'matrix-table'; // Add your styling class for the table
+
+  // Generate the table cells
+  matrix.forEach((row, i) => {
+    let tr = document.createElement('tr');
+    row.forEach((cell, j) => {
+      let td = document.createElement('td');
+      td.textContent = cell;
+      td.id = `cell-${i}-${j}`; // This ID will be used to apply the group borders
+      tr.appendChild(td);
+    });
+    table.appendChild(tr);
+  });
+
+  stepsDiv.appendChild(table);
+
+  // Now call the function to draw the group borders
+  applyGroupBorders(matrix);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function matrixToString(matrix) {
+    return matrix.map(row => row.join("")).join("");
+}
+
+
+        // Event listeners for the "Create Grid" button and submit buttons
+        document.getElementById("create-grid").addEventListener("click", createGrid);
+        document.getElementById("submit").addEventListener("click", rankOrderClustering);
+
+        // Add code to display an error message
+        let isSubmitted = false;
+
+        document.getElementById("submit").addEventListener("click", function () {
+            if (isSubmitted) {
+                document.getElementById("error-message").textContent = "Error: Form has already been submitted.";
+                return;
+            }
+
+            const cells = document.querySelectorAll("#matrix td");
+                cells.forEach((cell) => {
+                    cell.removeEventListener("click", toggleSelection);
+                    cell.style.pointerEvents = "none";
+                });
+
+                const submitButton = document.getElementById("submit");
+                submitButton.textContent = "Reload";
+                submitButton.removeEventListener("click", rankOrderClustering);
+                submitButton.addEventListener("click", function () {
+                    location.reload();
+                });
+
+                isSubmitted = true;
+
+
+            });
+
+    </script>
+
+</body>
+</html>

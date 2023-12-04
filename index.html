@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Spatial Design Problem Solver</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        function toggleAnswer(elementId) {
+            var x = document.getElementById(elementId);
+            if (x.style.display === "none") {
+                x.style.display = "block";
+            } else {
+                x.style.display = "none";
+            }
+        }
+
+        function setActiveNav(activeId) {
+            const navLinks = document.querySelectorAll('nav a');
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+            });
+            document.getElementById(activeId).classList.add('active');
+        }
+    </script>
+</head>
+
+<body>
+    <div class="header">
+        <img src="img/logo.jpg" class="logo">
+        <nav>
+            <a href="#" id="nav-home" onclick="changeContent('home'); setActiveNav('nav-home')" class="active">Home</a>
+            <a href="#" id="nav-about" onclick="changeContent('about'); setActiveNav('nav-about')">About</a>
+            <a href="rankorderclustering.html" id="nav-production">Production Cell Grouping</a>
+            <a href="assemblyline.html" id="nav-assembly">Assembly Line Balancing</a>
+            <a href="#" id="nav-contact" onclick="changeContent('contact'); setActiveNav('nav-contact')">Contact Us</a>
+        </nav>
+    </div>
+
+    <div class="background-wrapper">
+        <div class="content-wrapper">
+                    <h2 id="main-title">Choose a Problem to Solve</h2>
+                <div id="main-content" class="content">
+                    <!-- Default Home Content -->
+                    <div class="card">
+                        <a href="rankorderclustering.html">
+                            <img src="img/rank.jpg" alt="Production Cell Grouping">
+                            <h3>Production Cell Grouping</h3>
+                            <p>Use the Rank Order Clustering Algorithm to group production cells.</p>
+                        </a>
+                    </div>
+                    <div class="card">
+                        <a href="assemblyline.html">
+                            <img src="img/alb.jpg" alt="Assembly Line Balancing">
+                            <h3>Assembly Line Balancing</h3>
+                            <p>Use ALBP-1 and ALBP-2 Algorithms to balance your assembly line.</p>
+                        </a>
+                    </div>
+                </div>
+
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Copyright 2023, Spatial Design Problem Solver</p>
+    </footer>
+
+    <script>
+        function changeContent(contentType) {
+            const mainContent = document.getElementById('main-content');
+            const mainTitle = document.getElementById('main-title');
+
+            mainTitle.style.display = (contentType === 'home') ? 'block' : 'none';
+
+            switch (contentType) {
+                case 'home':
+                    mainContent.innerHTML = `
+                    <div class="card">
+                        <a href="rankorderclustering.html">
+                            <img src="img/rank.jpg" alt="Production Cell Grouping">
+                            <h3>Production Cell Grouping</h3>
+                            <p>Use the Rank Order Clustering Algorithm to group production cells.</p>
+                        </a>
+                    </div>
+                    <div class="card">
+                        <a href="assemblyline.html">
+                            <img src="img/alb.jpg" alt="Assembly Line Balancing">
+                            <h3>Assembly Line Balancing</h3>
+                            <p>Use ALBP-1 and ALBP-2 Algorithms to balance your assembly line.</p>
+                        </a>
+                    </div>`;
+                    break;
+                    case 'about':
+        mainContent.innerHTML = `
+          <div class="about-section">
+            <h2>About This Project</h2>
+            <p>This project is a culminating effort for the homework assignment in the course CEI_573. Conceived and developed by Georgios Baltatzidis, it serves as a practical application of theoretical knowledge into a real-world scenario. The primary objective of this website is to serve as an educational tool, aiding both the developer and peers in understanding the intricacies of spatial design and optimization.</p>
+            <p>As a learning endeavor, this platform integrates complex algorithms such as Rank Order Clustering and Assembly Line Balancing into its core functionality. It is designed with the intention to simulate the process optimization in manufacturing layouts, providing a hands-on experience in tackling efficiency problems.</p>
+            <p>Recognizing that the journey to mastery is an iterative process, this project embraces the iterative nature of learning. Errors and flaws, if found, are considered opportunities for improvement and deeper understanding. Should you encounter any issues or wish to discuss the methodologies implemented herein, please feel free to reach out to me, Georgios Baltatzidis. Collaboration and feedback are not just welcomed, but encouraged, as they are vital to the learning and development process.</p>
+            <img src="img/cut2.jpg" alt="Project Illustration" />
+          </div>`;
+        break;
+
+
+
+
+                    case 'contact':
+          mainContent.innerHTML = `
+              <div class="contact-container">
+                  <div class="contact-form">
+                      <h2>Contact Us</h2>
+                      <form action="#" method="post">
+                          <div class="input-field">
+                              <label for="name">FULL NAME</label>
+                              <input type="text" id="name" placeholder="Name">
+                          </div>
+
+                          <div class="input-field">
+                              <label for="email">EMAIL ADDRESS</label>
+                              <input type="email" id="email" placeholder="Email">
+                          </div>
+
+                          <div class="input-field">
+                              <label for="subject">SUBJECT</label>
+                              <input type="text" id="subject" placeholder="Subject">
+                          </div>
+
+                          <div class="input-field">
+                              <label for="message">MESSAGE</label>
+                              <textarea id="message" placeholder="Message"></textarea>
+                          </div>
+
+                          <button type="submit">Send Message</button>
+                      </form>
+                  </div>
+                  <div class="map-section">
+                      <!-- Map iframe -->
+                      <div style="width: 100%">
+                          <iframe width="100%" height="500" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?width=100%25&amp;height=600&amp;hl=en&amp;q=+(Cyprus%20University%20Of%20Technology)&amp;t=&amp;z=14&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"></iframe>
+                      </div>
+                  </div>
+                  <div class="contact-info">
+                      <p><i class="location-icon"></i> Address: Archiepiskopou Kyprianou 30, Limassol 3036, Cyprus</p>
+                      <p><i class="phone-icon"></i> Phone: 25002500</p>
+                      <p><i class="email-icon"></i> Email: georgebaltatzidis@gmail.com</p>
+                      <p><i class="web-icon"></i> Website: yoursite.com</p>
+                  </div>
+              </div>
+          `;
+          break;
+                default:
+                    // Default content here if needed
+                    break;
+            }
+        }
+
+        // Initialize the home content by default
+        changeContent('home');
+    </script>
+</body>
+
+</html>
