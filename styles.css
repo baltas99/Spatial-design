@@ -258,8 +258,8 @@ button[type="submit"]:hover {
 
 .contact-info i {
   display: inline-block;
-  width: 25px; /* Set a fixed width for icon alignment */
-  text-align: center; /* Center the icons */
+  width: 25px; 
+  text-align: center; 
 }
 
 /* Footer */
