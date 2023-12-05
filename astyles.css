@@ -16,7 +16,7 @@ body {
 .header {
     display: flex;
     align-items: center;
-    justify-content: flex-start; /* Align items to the start (left) of the container */
+    justify-content: flex-start; 
     background-color: #6E6E6E;
     padding: 10px;
     width: 100%;
@@ -54,16 +54,16 @@ nav a.active::before, nav a:hover::before {
 }
 
 button {
-    padding: 12px 24px; /* Slightly increase padding for the buttons */
-    background-color: #007acc; /* Change button color to a blue shade */
+    padding: 12px 24px; 
+    background-color: #007acc; 
     color: #fff;
     border: none;
     cursor: pointer;
-    transition: background-color 0.3s ease; /* Add a smooth hover effect */
+    transition: background-color 0.3s ease;
 }
 
 button:hover {
-    background-color: darken(#007acc, 10%); /* Darken the button color on hover */
+    background-color: darken(#007acc, 10%); 
 }
 
 .content-container {
@@ -86,17 +86,17 @@ button:hover {
 }
 
 .input-container label {
-    margin-right: 10px; /* Add some space between the label and the input */
+    margin-right: 10px; 
 }
 
 .input-container select,
 .input-container input[type="number"] {
-    margin-right: 20px; /* Add some space between the input fields */
+    margin-right: 20px; 
 }
 
 .button-container {
     display: flex;
-    justify-content: center; /* Center the button */
+    justify-content: center; 
 }
 
 .table-container {
@@ -129,33 +129,33 @@ th {
 }
 
 td {
-    border: 1px solid #003366; /* Dark blue borders */
-    padding: 10px 15px; /* Padding for table cells */
-    font-size: 14px; /* Font size for table cells */
-    overflow: hidden; /* Keeps the content within the cell */
-    text-overflow: ellipsis; /* Adds an ellipsis to any text that overflows the cell width */
-    white-space: nowrap; /* Prevents text from wrapping to the next line */
+    border: 1px solid #003366; 
+    padding: 10px 15px; 
+    font-size: 14px; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap; 
 }
 
 tfoot td {
-    font-weight: bold; /* Make the total time font bold */
+    font-weight: bold; 
 }
 
 table input[type="number"],
 table input[type="text"] {
-    max-width: 80px; /* Set a maximum width for input fields */
-    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    max-width: 80px; 
+    box-sizing: border-box; 
 }
 
 
 
 h1 {
     padding: 10px;
-    background-color: #009688; /* New color for the header */
+    background-color: #009688; 
     color: #fff;
     margin: 0;
-    font-size: 45px; /* Increase the font size for the header */
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Add a subtle text shadow */
+    font-size: 45px; 
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); 
 }
 
 
