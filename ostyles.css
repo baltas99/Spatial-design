@@ -13,7 +13,7 @@ body {
 .header {
   display: flex;
   align-items: center;
-  justify-content: flex-start; /* Align items to the start (left) of the container */
+  justify-content: flex-start; 
   background-color: #6E6E6E;
   padding: 10px;
   width: 100%;
@@ -48,16 +48,16 @@ nav a.active::before, nav a:hover::before {
 
 h1 {
     padding: 20px;
-    background-color: #009688; /* New color for the header */
+    background-color: #009688; 
     color: #fff;
     margin: 0;
-    font-size: 45px; /* Increase the font size for the header */
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Add a subtle text shadow */
+    font-size: 45px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); 
 }
 
 #create-grid, #submit, #matrix, #results, label {
-    font-size: 20px; /* Increase the font size for these elements */
-    color: #333; /* Change text color to a dark gray */
+    font-size: 20px; 
+    color: #333; 
 }
 
 #input-form {
@@ -68,35 +68,35 @@ h1 {
 
 label {
     margin-right: 10px;
-    color: #008000; /* Change text color to green */
-   font-weight: bold; /* Make the text bold */
+    color: #008000; 
+   font-weight: bold; 
 }
 
 input[type="number"] {
     width: 50px;
-    padding: 10px; /* Increase padding for input fields */
+    padding: 10px; 
     border: 1px solid #ccc;
     border-radius: 3px;
 }
 
 #create-grid, #submit {
-    padding: 12px 24px; /* Slightly increase padding for the buttons */
-    background-color: #007acc; /* Change button color to a blue shade */
+    padding: 12px 24px; 
+    background-color: #007acc; 
     color: #fff;
     border: none;
     cursor: pointer;
-    transition: background-color 0.3s ease; /* Add a smooth hover effect */
+    transition: background-color 0.3s ease; 
 }
 
 #create-grid:hover, #submit:hover {
-    background-color: #005f99; /* Darker color on hover */
+    background-color: #005f99; 
 }
 
 table {
     border: none;
     width: 100%;
     max-width: 600px;
-    margin: 20px 10px; /* adjusted margin for side-by-side display */
+    margin: 20px 10px; 
     border-collapse: collapse;
     background-color: #fff;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
@@ -150,14 +150,14 @@ table td:last-child {
 
 .table-container {
     display: flex;
-    justify-content: space-between; /* Display tables side by side */
-    align-items: flex-start; /* Align tables to the top */
-    padding: 10px; /* Add some padding for spacing */
+    justify-content: space-between; 
+    align-items: flex-start; 
+    padding: 10px; 
 }
 
 .matrix-table {
-    background-color: white; /* Add background color to tables */
-    width: 48%; /* Adjust the width of both tables equally */
+    background-color: white; 
+    width: 48%; 
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -185,7 +185,7 @@ sup {
     text-align: center;
     border: 1px solid #ddd;
   }
-  /* Additional style for the red border */
+  
   .border-top { border-top: 2px solid red; }
   .border-right { border-right: 2px solid red; }
   .border-bottom { border-bottom: 2px solid red; }
